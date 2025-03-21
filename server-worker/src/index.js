@@ -1,12 +1,7 @@
 /**
  * Cloudflare Worker 入口文件
  * 处理教案生成API请求并转发到AI服务
- * 包含缓存优化以提升性能
  */
-
-// 创建缓存实例
-const CACHE_TTL = 60 * 60 * 24; // 24小时缓存时间
-const CACHE_NAME = 'lessonplan-cache';
 
 // CORS 响应头设置
 const corsHeaders = {
@@ -45,45 +40,19 @@ ${requirements ? `## 补充要求\n${requirements}` : ''}
 
 // 处理健康检查请求
 async function handleHealthCheck(request) {
-  return new Response(JSON.stringify({ status: 'OK', message: 'Service is running', timestamp: new Date().toISOString() }), {
+  return new Response(JSON.stringify({ status: 'OK', message: 'Service is running' }), {
     headers: {
       'Content-Type': 'application/json',
-      'Cache-Control': 'public, max-age=60', // 缓存60秒
       ...corsHeaders,
     },
   });
 }
 
 // 处理教案生成请求
-async function handleGenerateLessonPlan(request, env, ctx) {
+async function handleGenerateLessonPlan(request, env) {
   try {
     // 解析请求体
     const params = await request.json();
-    
-    // 生成缓存键
-    const cacheKey = JSON.stringify(params);
-    
-    // 尝试从缓存中获取
-    const cache = caches.default;
-    const cacheUrl = new URL(request.url);
-    const cacheKey2 = new Request(`${cacheUrl.origin}${cacheUrl.pathname}/cache/${btoa(cacheKey)}`, {
-      method: 'GET',
-      headers: request.headers
-    });
-    
-    // 检查缓存
-    const cachedResponse = await cache.match(cacheKey2);
-    if (cachedResponse) {
-      console.log('使用缓存的响应');
-      // 添加表明来自缓存的头
-      const headers = new Headers(cachedResponse.headers);
-      headers.append('X-Cache', 'HIT');
-      return new Response(cachedResponse.body, {
-        status: cachedResponse.status,
-        statusText: cachedResponse.statusText,
-        headers: headers
-      });
-    }
     
     // 简单验证
     if (!params || !params.data) {
@@ -128,30 +97,16 @@ async function handleGenerateLessonPlan(request, env, ctx) {
     const data = await response.json();
     const content = data.choices[0].message.content;
     
-    // 格式化响应
-    const responseData = {
+    // 返回生成的教案
+    return new Response(JSON.stringify({
       success: true,
       lessonPlan: content,
-      timestamp: new Date().toISOString()
-    };
-    
-    // 创建响应对象
-    const responseBody = JSON.stringify(responseData);
-    const responseHeaders = {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'public, max-age=86400', // 缓存24小时
-      'X-Cache': 'MISS',
-      ...corsHeaders,
-    };
-    
-    const aiResponse = new Response(responseBody, {
-      headers: responseHeaders,
+    }), {
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders,
+      },
     });
-    
-    // 将响应存入缓存
-    ctx.waitUntil(cache.put(cacheKey2, aiResponse.clone()));
-    
-    return aiResponse;
     
   } catch (error) {
     console.error('生成教案时出错:', error);
@@ -182,66 +137,25 @@ export default {
       return handleOptions(request);
     }
     
-    // 检查是否可缓存的请求方法
-    const isCacheable = request.method === 'GET';
-    
-    // 如果是GET请求，尝试从缓存中获取
-    if (isCacheable) {
-      const cache = caches.default;
-      const cachedResponse = await cache.match(request);
-      
-      if (cachedResponse) {
-        const headers = new Headers(cachedResponse.headers);
-        headers.append('X-Cache', 'HIT');
-        return new Response(cachedResponse.body, {
-          status: cachedResponse.status,
-          statusText: cachedResponse.statusText,
-          headers: headers
-        });
-      }
-    }
-    
     // 路由处理
-    let finalResponse;
-    
     if (path === '/api/health' && request.method === 'GET') {
-      finalResponse = await handleHealthCheck(request);
-    } else if (path === '/api/generate' && request.method === 'POST') {
-      finalResponse = await handleGenerateLessonPlan(request, env, ctx);
-    } else {
-    
-      // 默认404响应
-      finalResponse = new Response(JSON.stringify({
-        error: 'Not Found',
-        message: '请求的资源不存在'
-      }), {
-        status: 404,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store',
-          ...corsHeaders,
-        },
-      });
+      return handleHealthCheck(request);
     }
     
-    // 如果是可缓存的请求，将响应存入缓存
-    if (isCacheable && finalResponse.status === 200) {
-      const cache = caches.default;
-      const responseToCacheHeaders = new Headers(finalResponse.headers);
-      
-      if (!responseToCacheHeaders.has('Cache-Control')) {
-        responseToCacheHeaders.set('Cache-Control', 'public, max-age=3600');
-      }
-      
-      const responseToCache = new Response(finalResponse.body, {
-        status: finalResponse.status,
-        statusText: finalResponse.statusText,
-        headers: responseToCacheHeaders
-      });
-      
-      ctx.waitUntil(cache.put(request, responseToCache.clone()));
+    if (path === '/api/generate' && request.method === 'POST') {
+      return handleGenerateLessonPlan(request, env);
     }
     
-    return finalResponse;
+    // 默认404响应
+    return new Response(JSON.stringify({
+      error: 'Not Found',
+      message: '请求的资源不存在'
+    }), {
+      status: 404,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders,
+      },
+    });
   }
 };
