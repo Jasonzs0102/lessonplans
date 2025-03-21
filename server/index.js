@@ -1,12 +1,16 @@
 /**
  * AI体育教案生成系统 - 后端服务入口
  */
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const rateLimit = require('express-rate-limit');
-const winston = require('winston');
-const path = require('path');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import rateLimit from 'express-rate-limit';
+import winston from 'winston';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // 加载环境变量
 dotenv.config();
@@ -45,8 +49,8 @@ const apiLimiter = rateLimit({
 app.use('/api', apiLimiter);
 
 // 导入路由
-const generateRoutes = require('./routes/generate');
-const healthRoutes = require('./routes/health');
+import generateRoutes from './routes/generate.js';
+import healthRoutes from './routes/health.js';
 
 // 注册路由
 app.use('/api', generateRoutes);
@@ -81,4 +85,4 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('未处理的Promise拒绝：', reason);
 });
 
-module.exports = app;
+export default app;

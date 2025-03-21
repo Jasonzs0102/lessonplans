@@ -12,12 +12,12 @@
  * - 流式AI响应处理
  * - 集成飞书导出功能
  */
-const { OpenAI } = require('openai');
-const { generatePrompt } = require('../utils/promptTemplate');
-const { formatResponse } = require('../utils/formatResponse');
-const { exportLessonToFeishu } = require('../utils/feishuExport');
-const { validateParams } = require('../middlewares/validator');
-const NodeCache = require('node-cache');
+import { OpenAI } from 'openai';
+import { generatePrompt } from '../utils/promptTemplate.js';
+import { formatResponse } from '../utils/formatResponse.js';
+import { exportLessonToFeishu } from '../utils/feishuExport.js';
+import { validateParams } from '../middlewares/validator.js';
+import NodeCache from 'node-cache';
 
 // 创建内存缓存实例
 const responseCache = new NodeCache({ stdTTL: 3600, checkperiod: 600 });
@@ -137,6 +137,4 @@ const generateLessonPlan = async (req, res) => {
   }
 };
 
-module.exports = {
-  generateLessonPlan
-};
+export { generateLessonPlan };
