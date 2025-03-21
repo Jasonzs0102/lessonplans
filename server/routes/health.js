@@ -1,7 +1,7 @@
 /**
  * 健康检查路由
  */
-import express from 'express';
+const express = require('express');
 const router = express.Router();
 
 // 健康检查接口
@@ -13,4 +13,4 @@ router.get('/health', (req, res) => {
   });
 });
 
-export default router;
+module.exports = router;

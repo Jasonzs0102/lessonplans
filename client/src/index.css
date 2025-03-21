@@ -87,9 +87,4 @@ body {
   .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
     color: theme('colors.crimson.700') !important; /* 使用!important确保颜色优先级 */
   }
-  
-  /* 额外增强标题颜色规则 */
-  div.prose h1, div.prose h2, div.prose h3, div.prose h4, div.prose h5, div.prose h6 {
-    color: theme('colors.crimson.700') !important;
-  }
 }

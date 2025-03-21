@@ -10,12 +10,11 @@
  * - 集成生成控制器的教案生成功能
  * - 处理教案生成请求并返回结果
  */
-import express from 'express';
-import { generateLessonPlan } from '../controllers/generateController.js';
-
+const express = require('express');
 const router = express.Router();
+const { generateLessonPlan } = require('../controllers/generateController');
 
 // 教案生成接口
 router.post('/generate', generateLessonPlan);
 
-export default router;
+module.exports = router;

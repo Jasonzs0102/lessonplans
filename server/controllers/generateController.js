@@ -12,12 +12,12 @@
  * - 流式AI响应处理
  * - 集成飞书导出功能
  */
-import { OpenAI } from 'openai';
-import { generatePrompt } from '../utils/promptTemplate.js';
-import { formatResponse } from '../utils/formatResponse.js';
-import { exportLessonToFeishu } from '../utils/feishuExport.js';
-import { validateParams } from '../middlewares/validator.js';
-import NodeCache from 'node-cache';
+const { OpenAI } = require('openai');
+const { generatePrompt } = require('../utils/promptTemplate');
+const { formatResponse } = require('../utils/formatResponse');
+const { exportLessonToFeishu } = require('../utils/feishuExport');
+const { validateParams } = require('../middlewares/validator');
+const NodeCache = require('node-cache');
 
 // 创建内存缓存实例
 const responseCache = new NodeCache({ stdTTL: 3600, checkperiod: 600 });
@@ -25,7 +25,14 @@ const responseCache = new NodeCache({ stdTTL: 3600, checkperiod: 600 });
 // 配置OpenAI客户端
 const openai = new OpenAI({
   apiKey: process.env.AI_API_KEY,
-  baseURL: process.env.AI_API_URL
+  baseURL: process.env.AI_API_URL,
+  // 为阿里云 DashScope 兼容模式添加额外配置
+  defaultHeaders: {
+    "Content-Type": "application/json"
+  },
+  defaultQuery: {
+    // 可能需要额外的查询参数
+  }
 });
 
 /**
@@ -137,4 +144,6 @@ const generateLessonPlan = async (req, res) => {
   }
 };
 
-export { generateLessonPlan };
+module.exports = {
+  generateLessonPlan
+};

@@ -13,7 +13,8 @@
  * - 处理错误并返回操作状态
  */
 
-const fetch = require('node-fetch');
+// 修复 node-fetch v2.x 在新版 Node.js 中的兼容性问题
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 // 飞书配置参数 - 从环境变量获取
 const APP_ID = process.env.FEISHU_APP_ID;

@@ -1,7 +1,7 @@
 /**
  * 参数验证中间件
  */
-import { z } from 'zod';
+const { z } = require('zod');
 
 // 创建参数验证模式
 const paramSchema = z.object({
@@ -35,4 +35,6 @@ const validateParams = (params) => {
   }
 };
 
-export { validateParams };
+module.exports = {
+  validateParams
+};

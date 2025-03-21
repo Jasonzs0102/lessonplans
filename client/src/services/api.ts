@@ -22,7 +22,7 @@ const apiClient = axios.create({
  */
 export const checkHealth = async () => {
   try {
-    const response = await apiClient.get('/api/health');
+    const response = await apiClient.get('/health');
     return response.data;
   } catch (error) {
     console.error('健康检查失败:', error);
@@ -55,7 +55,7 @@ export const generateLessonPlanStream = (
   const fetchData = async () => {
     try {
       // 使用fetch来实现SSE
-      const response = await fetch(`${API_BASE_URL}/api/generate`, {
+      const response = await fetch(`${API_BASE_URL}/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
