@@ -1,0 +1,63 @@
+/* 自定义样式 - Tailwind中没有的特殊样式 */
+
+/* 设置滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+/* Markdown内容的特殊样式 */
+.prose h1 {
+  font-size: 1.8rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  color: #1a56db;
+}
+
+.prose h2 {
+  font-size: 1.5rem;
+  margin-top: 1.2rem;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+.prose h3 {
+  font-size: 1.25rem;
+  margin-top: 1rem;
+  margin-bottom: 0.6rem;
+  font-weight: 600;
+  color: #3b82f6;
+}
+
+.prose table {
+  width: 100%;
+  margin: 1rem 0;
+  border-collapse: collapse;
+}
+
+.prose table th,
+.prose table td {
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.prose table th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}

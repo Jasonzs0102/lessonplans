@@ -1,0 +1,12 @@
+{"level":"info","message":"服务器已启动，正在监听端口 5001","timestamp":"2025-03-20T01:17:11.232Z"}
+{"level":"info","message":"服务器已启动，正在监听端口 5001","timestamp":"2025-03-20T01:23:23.108Z"}
+{"level":"info","message":"服务器已启动，正在监听端口 5001","timestamp":"2025-03-20T01:37:59.259Z"}
+{"address":"::","code":"EADDRINUSE","errno":-48,"level":"error","message":"未捕获的异常： listen EADDRINUSE: address already in use :::5001","port":5001,"stack":"Error: listen EADDRINUSE: address already in use :::5001\n    at Server.setupListenHandle [as _listen2] (node:net:1937:16)\n    at listenInCluster (node:net:1994:12)\n    at Server.listen (node:net:2099:7)\n    at Function.listen (/Users/wzs/Library/Mobile Documents/com~apple~CloudDocs/code/0320-lessonplan/server/node_modules/express/lib/application.js:635:24)\n    at Object.<anonymous> (/Users/wzs/Library/Mobile Documents/com~apple~CloudDocs/code/0320-lessonplan/server/index.js:70:5)\n    at Module._compile (node:internal/modules/cjs/loader:1562:14)\n    at Object..js (node:internal/modules/cjs/loader:1699:10)\n    at Module.load (node:internal/modules/cjs/loader:1313:32)\n    at Function._load (node:internal/modules/cjs/loader:1123:12)\n    at TracingChannel.traceSync (node:diagnostics_channel:322:14)","syscall":"listen","timestamp":"2025-03-20T03:42:06.290Z"}
+{"level":"info","message":"服务器已启动，正在监听端口 5001","timestamp":"2025-03-20T04:39:57.678Z"}
+{"level":"info","message":"服务器已启动，正在监听端口 5001","timestamp":"2025-03-20T04:47:10.155Z"}
+{"level":"info","message":"服务器已启动，正在监听端口 5001","timestamp":"2025-03-20T07:10:33.400Z"}
+{"level":"info","message":"服务器已启动，正在监听端口 5001","timestamp":"2025-03-20T07:18:03.899Z"}
+{"level":"info","message":"服务器已启动，正在监听端口 5001","timestamp":"2025-03-21T03:57:13.270Z"}
+{"level":"info","message":"服务器已启动，正在监听端口 5001","timestamp":"2025-03-21T04:06:11.067Z"}
+{"level":"info","message":"服务器已启动，正在监听端口 5001","timestamp":"2025-03-21T04:15:19.529Z"}
+{"level":"info","message":"服务器已启动，正在监听端口 5001","timestamp":"2025-03-21T04:49:29.510Z"}
