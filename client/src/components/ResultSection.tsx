@@ -41,26 +41,6 @@ const preprocessContent = (rawContent: string): string => {
     return `${hashes} ${title.trim()}`;
   });
   
-  // 优化课的结构部分，确保正确嵌套
-  processed = processed.replace(
-    /((?:##\s*课的结构|##\s*教学过程)[\s\S]*?)(?=##\s|$)/gm,
-    (structureSection) => {
-      // 修复重复的阶段名称问题
-      let fixed = structureSection.replace(
-        /(###\s*(?:准备部分|基本部分|结束部分)[^\n]*)[\s\S]*?阶段名称[：:]\s*(?:准备部分|基本部分|结束部分)/gm,
-        '$1'
-      );
-      
-      // 确保子部分正确嵌套显示为h4
-      fixed = fixed.replace(
-        /(?<=###\s*(?:基本部分)[^\n]*\n+)[^#\n]*?((?:课堂引入|(?:组织|队形)变化|教学内容|技术要点|(?:教学|练习)方法)[：:])/gm,
-        '#### $1'
-      );
-      
-      return fixed;
-    }
-  );
-  
   return processed;
 };
 
@@ -267,34 +247,6 @@ const ResultSection: React.FC<ResultSectionProps> = ({
                 h2: ({node, ...props}) => <h2 style={{color: '#AC1C35'}} className="text-xl font-semibold mt-5 mb-3 pb-1 border-b border-gray-100 !text-crimson-700" {...props} />,
                 h3: ({node, ...props}) => <h3 style={{color: '#AC1C35'}} className="text-lg font-medium mt-4 mb-2 !text-crimson-600" {...props} />,
                 h4: ({node, ...props}) => <h4 style={{color: '#AC1C35'}} className="text-base font-medium mt-3 mb-1 !text-crimson-600" {...props} />,
-                
-                // 特殊处理组织队形图
-                p: ({node, children, ...props}) => {
-                  // 检测是否为组织队形图
-                  const content = String(children);
-                  if (content.includes('●') || content.includes('▲') || content.includes('→')) {
-                    return (
-                      <div className="my-3 p-3 bg-gray-50 rounded-md font-mono text-sm whitespace-pre overflow-x-auto">
-                        {content.split('\n').map((line, i) => (
-                          <div key={i} className="flex items-center gap-1">
-                            {line.split('').map((char, j) => {
-                              if (char === '●') {
-                                return <span key={j} className="text-crimson-500">●</span>;
-                              } else if (char === '▲') {
-                                return <span key={j} className="text-red-500">▲</span>;
-                              } else if (char === '→') {
-                                return <span key={j} className="text-green-500">→</span>;
-                              } else {
-                                return <span key={j}>{char}</span>;
-                              }
-                            })}
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  }
-                  return <p {...props}>{children}</p>;
-                },
                 
                 // 强化列表显示
                 ul: ({node, ...props}) => <ul className="list-disc pl-6 my-3" {...props} />,
