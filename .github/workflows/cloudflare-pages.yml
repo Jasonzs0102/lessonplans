@@ -29,7 +29,7 @@ jobs:
       - name: Set production environment
         run: |
           cd client
-          echo "VITE_API_BASE_URL=https://api.lessonplan-app.com/api" > .env.production
+          echo "VITE_API_BASE_URL=https://lessonplan-backend.13335930102wzs.workers.dev/api" > .env.production
 
       - name: Build project
         run: |
