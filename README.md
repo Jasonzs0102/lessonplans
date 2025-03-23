@@ -285,3 +285,31 @@ const prompt = generatePrompt(userParams);
 - 增强系统监控与日志功能
 - 提升服务器可用性与容灾能力
 - 强化数据安全与用户隐私保护
+
+## GitHub Actions 部署配置
+
+为了使用GitHub Actions自动部署到Cloudflare Pages，需要在GitHub仓库设置中添加以下Secrets：
+
+### 获取Cloudflare API令牌
+1. 登录Cloudflare账户 https://dash.cloudflare.com/
+2. 点击右上角个人图标，选择"我的个人资料"
+3. 在左侧菜单选择"API令牌"
+4. 点击"创建令牌"
+5. 选择"编辑Cloudflare Workers"模板或创建自定义令牌
+6. 确保令牌有权限管理Pages和Workers
+7. 创建令牌并复制生成的值
+
+### 获取Cloudflare账户ID
+1. 登录Cloudflare账户
+2. 账户ID显示在右侧栏或仪表板URL中
+3. 它是一串字母数字字符，形如：a1b2c3d4e5f6g7h8i9j0
+
+### 在GitHub添加Secrets
+1. 进入GitHub仓库
+2. 点击"Settings" > "Secrets and variables" > "Actions"
+3. 点击"New repository secret"
+4. 添加以下两个Secrets：
+   - 名称：`CLOUDFLARE_API_TOKEN`，值：您的API令牌
+   - 名称：`CLOUDFLARE_ACCOUNT_ID`，值：您的账户ID
+
+添加这些Secrets后，GitHub Actions将能够自动部署到Cloudflare Pages。
