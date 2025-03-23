@@ -3,8 +3,8 @@
  */
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { LessonPlanParams } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
+import { LessonPlanParams } from '../types/index';
 
 interface FormSectionProps {
   onSubmit: (data: LessonPlanParams) => void;

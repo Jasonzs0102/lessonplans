@@ -2,7 +2,7 @@
  * API服务 - 处理与后端的通信
  */
 import axios from 'axios';
-import { GenerateRequestData, LessonPlanParams } from '../types';
+import { GenerateRequestData, LessonPlanParams } from '../types/index';
 
 // API基础URL，可以通过环境变量配置
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';

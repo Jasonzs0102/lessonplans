@@ -4,10 +4,9 @@ import FormSection from './components/FormSection'
 import ResultSection from './components/ResultSection'
 import LanguageSwitcher from './components/LanguageSwitcher'
 import ContactInfo from './components/ContactInfo'
-import { LessonPlanParams } from './types'
+import { LessonPlanParams } from './types/index'
 import { generateLessonPlanStream } from './services/api'
 import { motion, AnimatePresence } from 'framer-motion'
-import { throttle } from './utils/debounce'
 import { useLanguage } from './contexts/LanguageContext'
 
 function App() {
