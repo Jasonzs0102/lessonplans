@@ -7,7 +7,7 @@ import { GenerateRequestData, LessonPlanParams } from '../types/index';
 // API基础URL，可以通过环境变量配置
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5001';
 
-// 是否已经包含/api前缀
+// 检查URL是否已包含/api前缀
 const hasApiPrefix = API_BASE_URL.endsWith('/api') || API_BASE_URL.includes('/api/');
 
 // 创建axios实例
@@ -32,7 +32,11 @@ const isStreamSupported = () => {
 // 构建正确的API路径
 const getEndpoint = (path: string) => {
   // 如果基础URL已经包含/api前缀，则不再添加
-  return hasApiPrefix ? path.replace(/^\/api/, '') : path;
+  if (hasApiPrefix) {
+    // 去掉path开头的/api，避免重复
+    return path.replace(/^\/api/, '');
+  }
+  return path;
 };
 
 /**
@@ -87,7 +91,8 @@ export const generateLessonPlanStream = (
   
   // 获取正确的API端点
   const generateEndpoint = getEndpoint('/api/generate');
-  console.log(`请求API端点: ${API_BASE_URL}${generateEndpoint}`);
+  const fullApiUrl = API_BASE_URL + generateEndpoint;
+  console.log(`请求API端点: ${fullApiUrl}`);
   
   const executeRequest = async (useStream = true) => {
     try {
@@ -98,7 +103,7 @@ export const generateLessonPlanStream = (
         const controller = new AbortController();
         const signal = controller.signal;
         
-        const response = await fetch(`${API_BASE_URL}${generateEndpoint}`, {
+        const response = await fetch(fullApiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
