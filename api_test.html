@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>兼容OpenAI API 调用示例</title>
+</head>
+<body>
+  <h1>兼容OpenAI API 调用示例</h1>
+  
+  <textarea id="inputText" rows="4" cols="50" placeholder="请输入您的问题..."></textarea><br><br>
+  <button onclick="callOpenAI()">提交</button>
+
+  <h3>响应:</h3>
+  <pre id="responseText"></pre>
+
+  <script>
+    async function callOpenAI() {
+      const apiKey = 'sk-CCuKDSuDCJtb9y9OD61IRmD1tw2aahUZFs9tIrJxzacf6exW';  // 全部替换成您在https://api.aigc.bar 获取的apikey（也就是令牌）
+      const inputText = document.getElementById('inputText').value;
+
+      const responseText = document.getElementById('responseText');
+
+      // 设置 OpenAI API 请求
+      const response = await fetch('https://api.aigc.bar/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'claude-3-7-sonnet-20250219',  // 选择模型
+          messages: [
+            { role: 'system', content: 'You are a helpful assistant.' },
+            { role: 'user', content: inputText }
+          ]
+        })
+      });
+
+      // 处理响应
+      const data = await response.json();
+      responseText.textContent = data.choices[0].message.content.trim();
+    }
+  </script>
+</body>
+</html>

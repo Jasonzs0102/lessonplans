@@ -13,9 +13,10 @@
  * - 下载Markdown文件
  * - 增强队形图符号的展示
  */
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface ResultSectionProps {
   content: string;
@@ -69,24 +70,93 @@ const ResultSection: React.FC<ResultSectionProps> = ({
   isError,
   errorMessage 
 }) => {
+  const { t } = useLanguage();
   const resultRef = useRef<HTMLDivElement>(null);
   const userScrolledRef = useRef<boolean>(false);
+  const lastContentRef = useRef<string>('');
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 监听用户滚动操作
   const handleScroll = () => {
     if (!resultRef.current) return;
     
     const { scrollTop, scrollHeight, clientHeight } = resultRef.current;
-    // 如果用户已滚动到距离底部100px以上，标记为手动滚动状态
+    // 如果用户已手动向上滚动（离底部超过100px），标记为手动滚动状态
     userScrolledRef.current = scrollHeight - scrollTop - clientHeight > 100;
+    
+    // 如果用户滚动到了底部，重置手动滚动状态
+    if (scrollHeight - scrollTop - clientHeight < 20) {
+      userScrolledRef.current = false;
+    }
   };
 
-  useEffect(() => {
-    // 当有新内容时，仅在用户未手动滚动时滚动到底部
-    if (resultRef.current && content && !userScrolledRef.current) {
+  // 滚动到底部函数
+  const scrollToBottom = useCallback(() => {
+    if (resultRef.current && !userScrolledRef.current) {
       resultRef.current.scrollTop = resultRef.current.scrollHeight;
     }
-  }, [content]);
+  }, []);
+
+  useEffect(() => {
+    // 当内容变化且内容比上次更多时
+    if (content && content !== lastContentRef.current) {
+      lastContentRef.current = content;
+      
+      // 使用setTimeout确保DOM更新后再滚动
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      
+      scrollTimeoutRef.current = setTimeout(() => {
+        scrollToBottom();
+        scrollTimeoutRef.current = null;
+      }, 50);
+    }
+    
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, [content, scrollToBottom]);
+
+  useEffect(() => {
+    // 组件挂载时添加滚动指示器
+    const resultElement = resultRef.current;
+    if (resultElement) {
+      // 添加视觉指示器，当有新内容但用户滚动了时提示
+      const indicator = document.createElement('div');
+      indicator.className = 'fixed bottom-8 right-8 bg-crimson-500 text-white rounded-full p-2 shadow-lg cursor-pointer hidden';
+      indicator.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+      `;
+      indicator.onclick = () => {
+        userScrolledRef.current = false;
+        scrollToBottom();
+        indicator.classList.add('hidden');
+      };
+      
+      document.body.appendChild(indicator);
+      
+      // 检测是否需要显示指示器
+      const checkScroll = () => {
+        if (resultElement && userScrolledRef.current && content.length > 0) {
+          indicator.classList.remove('hidden');
+        } else {
+          indicator.classList.add('hidden');
+        }
+      };
+      
+      const scrollInterval = setInterval(checkScroll, 500);
+      
+      return () => {
+        clearInterval(scrollInterval);
+        document.body.removeChild(indicator);
+      };
+    }
+  }, [content.length, scrollToBottom]);
 
   // 复制内容到剪贴板
   const copyToClipboard = async () => {
@@ -117,7 +187,7 @@ const ResultSection: React.FC<ResultSectionProps> = ({
   return (
     <div className="result-container flex flex-col h-full">
       <div className="result-header">
-        <h2 className="text-lg font-semibold text-gray-900">教案内容</h2>
+        <h2 className="text-lg font-semibold text-gray-900">{t('result.title')}</h2>
         
         {content && !isLoading && (
           <div className="flex space-x-2">
@@ -128,7 +198,7 @@ const ResultSection: React.FC<ResultSectionProps> = ({
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              复制
+              {t('result.copy')}
             </button>
             <button 
               onClick={downloadMarkdown}
@@ -137,7 +207,7 @@ const ResultSection: React.FC<ResultSectionProps> = ({
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
-              下载
+              {t('result.download')}
             </button>
           </div>
         )}
@@ -153,7 +223,7 @@ const ResultSection: React.FC<ResultSectionProps> = ({
             </div>
             <div className="ml-3">
               <p className="text-sm text-red-700">
-                生成教案时出错: {errorMessage || '未知错误，请稍后重试'}
+                {errorMessage ? t('error.message').replace('{message}', errorMessage) : t('error.unknown')}
               </p>
             </div>
           </div>
@@ -173,7 +243,7 @@ const ResultSection: React.FC<ResultSectionProps> = ({
                 <div className="animate-bounce h-3 w-3 bg-crimson-500 rounded-full" style={{ animationDelay: '0.2s' }}></div>
                 <div className="animate-bounce h-3 w-3 bg-crimson-500 rounded-full" style={{ animationDelay: '0.4s' }}></div>
               </div>
-              <p className="text-gray-500 text-sm">正在生成教案，请稍候...<br/>这可能需要一分钟左右</p>
+              <p className="text-gray-500 text-sm">{t('result.loading')}</p>
             </div>
           </div>
         )}
@@ -183,7 +253,7 @@ const ResultSection: React.FC<ResultSectionProps> = ({
             <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mb-4 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <p className="text-gray-400 text-sm">填写参数并点击"生成教案"按钮开始生成</p>
+            <p className="text-gray-400 text-sm">{t('result.empty')}</p>
           </div>
         )}
 

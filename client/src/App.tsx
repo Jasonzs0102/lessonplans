@@ -1,18 +1,30 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import './App.css'
 import FormSection from './components/FormSection'
 import ResultSection from './components/ResultSection'
+import LanguageSwitcher from './components/LanguageSwitcher'
+import ContactInfo from './components/ContactInfo'
 import { LessonPlanParams } from './types'
 import { generateLessonPlanStream } from './services/api'
 import { motion, AnimatePresence } from 'framer-motion'
+import { throttle } from './utils/debounce'
+import { useLanguage } from './contexts/LanguageContext'
 
 function App() {
+  const { t } = useLanguage();
+  
   // 状态管理
   const [content, setContent] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [showResult, setShowResult] = useState(false)
+  
+  // 防止重复提交
+  const isSubmitting = useRef(false)
+  const lastSubmitTime = useRef(0)
+  const MIN_SUBMIT_INTERVAL = 2000 // 最小提交间隔为2秒
+  const cancelRequestRef = useRef<(() => void) | null>(null)
   
   // 当有内容时，显示结果区域
   useEffect(() => {
@@ -21,8 +33,25 @@ function App() {
     }
   }, [content])
 
-  // 处理表单提交
-  const handleSubmit = (data: LessonPlanParams) => {
+  // 处理表单提交 - 添加节流与锁定处理
+  const handleSubmit = useCallback((data: LessonPlanParams) => {
+    // 检查是否正在提交
+    if (isSubmitting.current) {
+      console.log('已有请求正在处理中，请等待...')
+      return
+    }
+    
+    // 检查时间间隔
+    const now = Date.now()
+    if (now - lastSubmitTime.current < MIN_SUBMIT_INTERVAL) {
+      console.log('请求间隔过短，请稍后再试...')
+      return
+    }
+    
+    // 设置提交锁定
+    isSubmitting.current = true
+    lastSubmitTime.current = now
+    
     // 重置状态
     setContent('')
     setIsError(false)
@@ -30,33 +59,54 @@ function App() {
     setIsLoading(true)
     
     // 调用API生成教案
-    generateLessonPlanStream(
+    const cancelRequest = generateLessonPlanStream(
       data,
       // 进度回调 - 更新内容
       (chunk) => {
-        setContent(prevContent => prevContent + chunk)
+        setContent(chunk) // 直接使用API提供的完整内容，API内部已累加
       },
       // 完成回调
-      () => {
+      (fullContent) => {
+        setContent(fullContent)
         setIsLoading(false)
+        isSubmitting.current = false // 解除提交锁定
+        cancelRequestRef.current = null
       },
       // 错误回调
       (error) => {
         setIsLoading(false)
         setIsError(true)
         setErrorMessage(error)
+        isSubmitting.current = false // 解除提交锁定
+        cancelRequestRef.current = null
       }
     )
-  }
+    
+    // 保存取消请求函数
+    cancelRequestRef.current = cancelRequest
+    
+    // 组件卸载时取消请求
+    return () => {
+      if (cancelRequestRef.current) {
+        cancelRequestRef.current()
+        cancelRequestRef.current = null
+      }
+    }
+  }, []) // 移除节流，因为我们已经在函数内实现了锁定
 
   return (
     <div className="min-h-screen py-8 app-container">
       <div className="container mx-auto px-4 max-w-6xl relative">
         {/* 头部 */}
-        <header className="mb-8 text-center transition-all duration-500 ease-out">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">AI体育教案生成系统</h1>
+        <header className="mb-8 text-center transition-all duration-500 ease-out relative">
+          {/* 语言切换按钮 */}
+          <div className="absolute right-2 top-2">
+            <LanguageSwitcher />
+          </div>
+          
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">{t('app.title')}</h1>
           <div className="bg-gradient-to-r from-crimson-600 to-crimson-700 h-1 w-24 mx-auto mb-4 rounded-full"></div>
-          <p className="text-gray-500">智能生成符合体育与健康新课标的体育课教案</p>
+          <p className="text-gray-500">{t('app.subtitle')}</p>
         </header>
         
         {/* 主体内容 */}
@@ -109,7 +159,8 @@ function App() {
         {/* 底部 */}
         <footer className="mt-16 text-center">
           <div className="bg-gradient-to-r from-gray-100 to-gray-200 h-px w-24 mx-auto mb-6 rounded-full"></div>
-          <p className="text-gray-400 text-sm">© {new Date().getFullYear()} AI体育教案生成系统 | 使用先进AI技术提供支持</p>
+          <p className="text-gray-400 text-sm">{t('footer.copyright')}</p>
+          <ContactInfo />
         </footer>
       </div>
     </div>

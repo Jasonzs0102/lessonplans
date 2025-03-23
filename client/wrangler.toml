@@ -1,0 +1,18 @@
+name = "lessonplan-frontend"
+compatibility_date = "2023-03-21"
+
+[site]
+bucket = "./dist"
+
+# 自定义域名配置（取消注释并填入您的域名信息）
+# [[routes]]
+# pattern = "lessonplan-app.com/*"
+# zone_name = "lessonplan-app.com"
+
+# 环境变量
+[env.production]
+VITE_API_BASE_URL = "https://api.lessonplan-app.com/api"
+
+# 将所有路由指向index.html，以支持SPA
+[site.static]
+spa = true 

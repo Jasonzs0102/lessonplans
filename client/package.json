@@ -5,9 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "fast": "vite --force",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build && npx wrangler pages deploy dist",
+    "deploy:publish": "npm run build && npx wrangler pages publish dist"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
