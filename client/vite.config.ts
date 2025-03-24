@@ -8,7 +8,6 @@ export default defineConfig({
     react(),
     compression({
       algorithm: 'gzip',
-      ext: '.gz',
       threshold: 10240, // 10KB以上的文件才会被压缩
     })
   ],
@@ -31,7 +30,6 @@ export default defineConfig({
     cssMinify: true,
     minify: 'esbuild',
     sourcemap: false,
-    // 添加兼容性设置
     target: 'es2015',
     rollupOptions: {
       output: {
@@ -50,5 +48,7 @@ export default defineConfig({
   optimizeDeps: {
     include: ['react', 'react-dom', 'framer-motion', 'react-markdown'],
     exclude: ['@babel/runtime']
-  }
+  },
+  // 添加基本路径配置，支持子路径部署
+  base: '/'
 })

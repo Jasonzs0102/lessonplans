@@ -1,0 +1,27 @@
+name = "lessonplans"
+main = "src/index.js"
+compatibility_date = "2023-06-17"
+
+[build]
+command = "npm install && cd ../client && npm install && npm run build"
+
+[site]
+bucket = "../client/dist"
+
+[vars]
+NODE_ENV = "production"
+AI_API_URL = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+AI_MODEL_NAME = "qwq-plus"
+ENABLE_FEISHU_EXPORT = "true"
+AI_API_KEY = "sk-fe52c273f73741ebb9c61b8e919cde4c"
+FEISHU_APP_ID = "cli_a7538898085e900b"
+FEISHU_APP_SECRET = "1lr4GbMlZPrHnZsdJfCidcnWAw4YmUIz"
+FEISHU_BASE_ID = "URNQb7BnRaVJrxs2WmJcmA6knwc"
+FEISHU_TABLE_ID = "tblLNN8fzd9n9vkU"
+
+# 敏感变量通过命令行或控制台设置
+# wrangler secret put AI_API_KEY
+# wrangler secret put FEISHU_APP_ID
+# wrangler secret put FEISHU_APP_SECRET
+# wrangler secret put FEISHU_BASE_ID
+# wrangler secret put FEISHU_TABLE_ID 

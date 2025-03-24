@@ -1,0 +1,22 @@
+{
+  "name": "worker",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "cd ../client && npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "Cloudflare Worker for lessonplans.pro",
+  "dependencies": {
+    "@cloudflare/kv-asset-handler": "^0.3.0",
+    "axios": "^1.8.4",
+    "cors": "^2.8.5",
+    "itty-router": "^4.2.2",
+    "node-fetch": "^2.7.0"
+  }
+}
