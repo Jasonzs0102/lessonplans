@@ -8,9 +8,7 @@
     "fast": "vite --force",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "deploy": "npm run build && npx wrangler pages deploy dist",
-    "deploy:publish": "npm run build && npx wrangler pages publish dist"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
